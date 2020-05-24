@@ -1,25 +1,84 @@
+# --------------------------------------------------
+#  anyenvの設定
+# --------------------------------------------------
 eval "$(anyenv init -)"
 
-# zsh-completions(補完機能)の設定
+# --------------------------------------------------
+#  zsh-completions(補完機能)の設定
+# --------------------------------------------------
 if [ -e /usr/local/share/zsh-completions ]; then
   fpath=(/usr/local/share/zsh-completions $fpath)
 fi
 autoload -U compinit
 compinit -u
 
-# prompt
-PROMPT='%n@%m %F{2}%~%f$ '
+# --------------------------------------------------
+#  プロンプトの設定（左）
+# --------------------------------------------------
+# PROMPT='%n@%m %F{2}%~%f$ '
+PROMPT='
+%n@%m %F{green}%~%f
+%F{green}%B●%b%f '
 
-## alias
-# ls
+# --------------------------------------------------
+#  プロンプトの設定（右）：Gitブランチの状態表示
+# --------------------------------------------------
+autoload -Uz vcs_info
+setopt prompt_subst
+
+# true | false
+# trueで作業ブランチの状態に応じて表示を変える
+zstyle ':vcs_info:*' check-for-changes false
+# addしてない場合の表示
+zstyle ':vcs_info:*' unstagedstr "%F{red}%B＋%b%f"
+# commitしてない場合の表示
+zstyle ':vcs_info:*' stagedstr "%F{yellow}★ %f"
+# デフォルトの状態の表示
+zstyle ':vcs_info:*' formats "%u%c%F{green}【 %b 】%f"
+# コンフリクトが起きたり特別な状態になるとformatsの代わりに表示
+zstyle ':vcs_info:*' actionformats '【%b | %a】'
+
+precmd () { vcs_info }
+
+RPROMPT=$RPROMPT'${vcs_info_msg_0_}'
+
+# --------------------------------------------------
+#  alias（ls）
+# --------------------------------------------------
 alias la='ls -a'
 alias ll='ls -l'
 alias lr='ls -R'
 
-# その他
+# --------------------------------------------------
+#  alias（Git）
+# --------------------------------------------------
+alias g="git"
+compdef g=git
+
+alias gs='git status --short --branch'
+alias ga='git add -A'
+alias gc='git commit -m'
+alias gp='git push origin master'
+
+alias gd='git diff'
+alias gco='git checkout'
+alias gcob='git checkout -b'
+alias gb='git branch'
+alias gba='git branch -a'
+alias gbr='git branch -r'
+
+alias gm='git merge'
+alias gr='git reset'
+
+# --------------------------------------------------
+#  alias（other）
+# --------------------------------------------------
 alias c='clear'
 alias h='history'
 
+# --------------------------------------------------
+#  Other
+# --------------------------------------------------
 # 同時に起動しているzshの間でhistoryを共有する
 setopt share_history
 
