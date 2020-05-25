@@ -1,3 +1,5 @@
+autoload -Uz add-zsh-hook
+
 # --------------------------------------------------
 #  anyenvの設定
 # --------------------------------------------------
@@ -15,10 +17,29 @@ compinit -u
 # --------------------------------------------------
 #  プロンプトの設定（左）
 # --------------------------------------------------
-# PROMPT='%n@%m %F{2}%~%f$ '
-PROMPT='
-%n@%m %F{green}%~%f
+# venvの環境名を消す
+export VIRTUAL_ENV_DISABLE_PROMPT=1
+
+# venvがactivateのときに、環境名とPythonのバージョンを取得する
+function pyprecmd () {
+  PYTHON_PROMPT_STRING=""
+  if [ -n "$VIRTUAL_ENV" ]; then
+    PYTHON_VERSION_STRING="py:"$(pyenv version-name)
+    PYTHON_VIRTUAL_ENV_STRING="`basename \"$VIRTUAL_ENV\"`"
+    PYTHON_PROMPT_STRING="("${PYTHON_VIRTUAL_ENV_STRING}" "${PYTHON_VERSION_STRING}") "
+  fi
+}
+
+add-zsh-hook precmd pyprecmd
+
+function setprompt() {
+  PROMPT='
+%F{red}${PYTHON_PROMPT_STRING}%f%n@%m %F{green}%~%f
 %F{green}%B●%b%f '
+}
+
+setprompt
+unfunction setprompt
 
 # --------------------------------------------------
 #  プロンプトの設定（右）：Gitブランチの状態表示
@@ -75,6 +96,7 @@ alias gr='git reset'
 # --------------------------------------------------
 alias c='clear'
 alias h='history'
+alias va='source venv/bin/activate'
 
 # --------------------------------------------------
 #  Other
